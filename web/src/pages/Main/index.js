@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 
 import { FaGithubAlt, FaPlus, FaSpinner } from 'react-icons/fa';
-import { Container, Form, SubmitButton } from './styles';
+
+import { Container, Form, SubmitButton, List } from './styles';
 
 import api from '../../services/api';
 
@@ -17,30 +18,54 @@ export default class Main extends Component {
   };
 
   submit = async (e) => {
-    const { newRepo, repositories } = this.state;
+    try {
+      const { newRepo, repositories } = this.state;
 
-    this.setState({ loading: true });
-    e.preventDefault();
+      this.setState({ loading: true });
+      e.preventDefault();
 
-    const { data } = await api.get(`/repos/${newRepo}`);
+      const { data } = await api.get(`/repos/${newRepo}`);
 
-    console.log(data);
+      console.log(data);
 
-    const info = {
-      name: data.full_name,
-    };
+      const info = {
+        name: data.full_name,
+        id: data.id,
+      };
 
-    this.setState({
-      repositories: [...repositories, info],
-      newRepo: '',
-      loading: false,
-    });
+      this.setState({
+        repositories: [...repositories, info],
+        newRepo: '',
+        loading: false,
+      });
 
-    document.querySelector('#inputSearch').focus();
+      document.querySelector('#inputSearch').focus();
+    } catch (err) {
+      this.setState({
+        loading: false,
+      });
+
+      console.dir(err);
+    }
   };
 
+  componentDidMount() {
+    const repositories = localStorage.getItem('repositories');
+
+    if (repositories) {
+      this.setState({ repositories: JSON.parse(repositories) });
+    }
+  }
+
+  componentDidUpdate(oldState, prevState) {
+    const { repositories } = this.state;
+    if (prevState.repositories !== repositories) {
+      localStorage.setItem('repositories', JSON.stringify(repositories));
+    }
+  }
+
   render() {
-    const { newRepo, loading } = this.state;
+    const { newRepo, loading, repositories } = this.state;
 
     return (
       <Container>
@@ -66,6 +91,15 @@ export default class Main extends Component {
             )}
           </SubmitButton>
         </Form>
+
+        <List>
+          {repositories.map((repository) => (
+            <li key={repository.id}>
+              <span>{repository.name}</span>
+              <a href="">Detalhes</a>
+            </li>
+          ))}
+        </List>
       </Container>
     );
   }
