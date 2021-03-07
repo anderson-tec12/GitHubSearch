@@ -24,5 +24,9 @@ module.exports = {
     'react/prop-types': 0,
     'jsx-a11y/heading-has-content': 0,
     'no-lone-blocks': 0,
+    'react/static-property-placement': 0,
+    'consistent-return': 0,
+    'import/prefer-default-export': 0,
+    'import/named': 0,
   },
 };
